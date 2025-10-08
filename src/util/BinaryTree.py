@@ -1,5 +1,7 @@
+import math
+
 from src.util.Interval import Interval
-from src.util.Matrix import Matrix
+from src.util.Matrix import Matrix, generate_gaussian_matrix
 
 
 class BCMOpt:
@@ -51,3 +53,7 @@ class Node:
                 self.last = self.value.add(self.noise)
                 self.is_full = True
         return self.last
+
+
+def gaussian_noise_variance(eps, delta, sensitivity_squared):
+    return 2.0 * sensitivity_squared * math.log(1.25 / delta) / (eps * eps)

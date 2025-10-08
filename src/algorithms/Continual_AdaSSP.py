@@ -1,12 +1,8 @@
 import math
 
-from src.util.BinaryTree import BCMOpt
+from src.util.BinaryTree import BCMOpt, gaussian_noise_variance
 from src.util.Matrix import *
 from src.util.SVT import SVT
-
-
-def gaussian_noise_variance(eps, delta, sensitivity_squared):
-    return 2.0 * sensitivity_squared * math.log(1.25 / delta) / (eps * eps)
 
 
 class ContinualAdaSSP:

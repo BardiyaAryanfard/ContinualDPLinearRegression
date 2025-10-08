@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Matrix:
     def __init__(self, n_rows, n_columns, values=None):
         if values is None:
