@@ -1,0 +1,32 @@
+import math
+
+import numpy as np
+
+
+class SVT:
+    def __init__(self, epsilon, delta, T, sensitivity, c):
+        self.epsilon = epsilon
+        self.delta = delta
+        self.T = T
+        self.sensitivity = sensitivity
+        self.c = c
+        self.sigma = math.sqrt(32.0 * c * math.log(1.0 / delta)) * sensitivity / epsilon
+        self.rho = np.random.laplace(0.0, self.sigma)
+        self.count = 0
+
+    def update(self, query_value, threshold):
+        if self.count >= self.T:
+            raise Exception("SVT: Exceeded maximum number of positive responses T")
+
+        noisy_query = query_value + np.random.laplace(0.0, 2.0 * self.sigma)
+        noisy_threshold = threshold + self.rho
+        if noisy_query >= noisy_threshold:
+            self.count += 1
+            return True
+        else:
+            return False
+
+    def get_alpha(self):
+        return self.sensitivity * (math.log(n) + math.log(6.0 * self.c)) * math.sqrt(
+            512.0 * self.c * math.log(1.0 / self.delta)) / self.epsilon
+    # beta = 1/3
