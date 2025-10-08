@@ -34,11 +34,12 @@ class Node:
         self.is_left_child_full = False
         self.last = Matrix(n_rows, n_columns)
         self.is_left = is_left
+        self.noise_variance = noise_variance
         if interval.len() > 1:
             self.child = Node(self, interval.left_half(), T, epsilon, True, n_rows, n_columns, noise_variance)
 
     def update(self, value):
-        self.value += value
+        self.value = self.value.add(value)
         if self.interval.len() == 1:
             self.is_full = True
             self.last = self.value.add(self.noise)
@@ -48,7 +49,7 @@ class Node:
             if self.child.is_left:
                 self.noisy_left_sum = self.child.last
                 self.child = Node(self, self.interval.right_half(), self.T, self.epsilon, False, self.value.n_rows,
-                                  self.value.n_columns, self.noise.variance)
+                                  self.value.n_columns, self.noise_variance)
             else:
                 self.last = self.value.add(self.noise)
                 self.is_full = True

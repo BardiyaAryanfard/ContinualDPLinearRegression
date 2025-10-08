@@ -30,6 +30,11 @@ class Matrix:
     def transpose(self):
         return Matrix(self.n_columns, self.n_rows, self.data.T)
 
+    def first_rows(self, num):
+        if num > self.n_rows:
+            raise ValueError("Number of rows requested exceeds matrix dimensions.")
+        return Matrix(num, self.n_columns, self.data[:num, :])
+
     def inverse(self):
         if self.n_rows != self.n_columns:
             raise ValueError("Matrix must be square to calculate its inverse.")

@@ -22,11 +22,12 @@ class ContinualAdaSSP:
         self.lambda_min_SVT = SVT(eps / 3.0, delta / 3.0, n, 4.0 * X_bound * X_bound, math.ceil(math.log2(n)))
         self.current_lambda_min_tilde = 0
         self.SVT_threshold = max(1.0, 4.0 * self.X_bound * self.X_bound)
+        self.t = 0
 
     def update(self, x, y):
         self.xtx.update(x.transpose().multiply(x))
         self.xty.update(x.transpose().multiply(y))
-        if self.lambda_min_SVT.update(self.xtx.get_real_sum().get_min_eigenvalue(), self.SVT_threshold) is True:
+        if self.lambda_min_SVT.update(self.xtx.get_real_sum().min_eigenvalue(), self.SVT_threshold) is True:
             self.current_lambda_min_tilde = self.SVT_threshold
             self.SVT_threshold *= 2.0
         # var-rho in e1_ub is set to 1/3n
@@ -34,4 +35,9 @@ class ContinualAdaSSP:
             self.d * math.log(2.5 / self.delta) * math.log(6.0 * self.d * self.d * self.n)) / self.eps
         alpha = self.lambda_min_SVT.get_alpha()
         lam = max(0.0, e1_ub + alpha - self.current_lambda_min_tilde)
+        if self.t == 0:
+            print("e1_ub:", e1_ub, " alpha: ", alpha)
+        if self.t % 10000 == 0:
+            print("lambda: ", lam)
+        self.t += 1
         return (self.xtx.get().add(identity(self.d).multiply_by_num(lam))).inverse().multiply(self.xty.get())
