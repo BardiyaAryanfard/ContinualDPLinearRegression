@@ -58,3 +58,4 @@ class Node:
 
 def gaussian_noise_variance(eps, delta, sensitivity_squared):
     return 2.0 * sensitivity_squared * math.log(1.25 / delta) / (eps * eps)
+

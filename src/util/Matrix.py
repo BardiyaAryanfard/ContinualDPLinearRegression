@@ -49,31 +49,53 @@ class Matrix:
         eigenvalues = np.linalg.eigvals(self.data)
         return np.min(eigenvalues)
 
+    def spectral_norm(self):
+        if self.n_rows != self.n_columns:
+            raise ValueError("Matrix must be square to calculate spectral norm.")
+        singular_values = np.linalg.svd(self.data, compute_uv=False)
+        return np.max(singular_values)
+
     def to_array(self):
         return self.data.tolist()
 
 
 def generate_symmetric_gaussian_matrix(n, variance):
-    # Calculate standard deviation from variance
     sigma = np.sqrt(variance)
-    # Create an n x n matrix with i.i.d. Gaussian random variables
     upper_triangular = np.random.normal(0, sigma, size=(n, n))
-    # Make the matrix symmetric
     symmetric_matrix = np.triu(upper_triangular) + np.triu(upper_triangular, 1).T
-    # Return as a Matrix object
     return Matrix(n, n, symmetric_matrix)
 
 
 def generate_gaussian_matrix(n_rows, n_columns, variance):
     if n_rows == n_columns:
         return generate_symmetric_gaussian_matrix(n_rows, variance)
-    # Calculate standard deviation from variance
     sigma = np.sqrt(variance)
-    # Create an n_rows x n_columns matrix with i.i.d. Gaussian random variables
     gaussian_matrix = np.random.normal(0, sigma, size=(n_rows, n_columns))
-    # Return as a Matrix object
     return Matrix(n_rows, n_columns, gaussian_matrix)
 
 
 def identity(size):
     return Matrix(size, size, np.identity(size))
+
+
+def zero_matrix(n_rows, n_columns):
+    return Matrix(n_rows, n_columns)
+
+
+def symmetric_matrix_from_array(array):
+    n = len(array)
+    for i in range(n):
+        for j in range(i + 1, n):
+            array[j][i] = array[i][j]
+    return Matrix(n, n, array)
+
+
+def symmetric_matrix_to_array(matrix):
+    n, m = matrix.dimensions()
+    if n != m:
+        raise ValueError("Matrix must be square to convert to symmetric array.")
+    array = matrix.to_array()
+    for i in range(n):
+        for j in range(i + 1, n):
+            array[j][i] = array[i][j]
+    return array
