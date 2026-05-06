@@ -13,7 +13,7 @@ class SVT:
         self.beta = 0.1
         self.sigma = math.sqrt(32.0 * c * math.log(1.0 / delta)) * sensitivity / epsilon
         print("sigma: ", self.sigma)
-        self.rho = np.random.laplace(0.0, self.sigma)
+        self.rho = np.float64(np.random.laplace(0.0, self.sigma))
         self.count = 0
 
     def update(self, query_value, threshold):
@@ -23,7 +23,7 @@ class SVT:
             self.count += 1
             return False
 
-        noisy_query = query_value + np.random.laplace(0.0, 2.0 * self.sigma)
+        noisy_query = query_value + np.float64(np.random.laplace(0.0, 2.0 * self.sigma))
         noisy_threshold = threshold + self.rho
         if noisy_query >= noisy_threshold:
             self.count += 1

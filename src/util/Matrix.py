@@ -4,10 +4,16 @@ import numpy as np
 class Matrix:
     def __init__(self, n_rows, n_columns, values=None):
         if values is None:
-            self.data = np.zeros((n_rows, n_columns))
+            self.data = np.zeros((n_rows, n_columns), dtype=np.float64)
         else:
-            self.data = np.array(values)
+            self.data = np.asarray(values, dtype=np.float64)
         self.n_rows, self.n_columns = self.data.shape
+
+    def set_row(self, row_index, row_values):
+        if row_values.n_columns != self.n_columns or row_values.n_rows != 1:
+            raise ValueError("Length of row_values must match the number of columns.")
+        for i in range(self.n_columns):
+            self.data[row_index][i] = row_values.data[0][i]
 
     def add(self, other):
         if self.data.shape != other.data.shape:
@@ -38,7 +44,9 @@ class Matrix:
     def inverse(self):
         if self.n_rows != self.n_columns:
             raise ValueError("Matrix must be square to calculate its inverse.")
-        return Matrix(self.n_rows, self.n_columns, np.linalg.inv(self.data))
+        # if self.min_eigenvalue() < 1e-8:
+        #     raise ValueError("Matrix is singular or nearly singular; cannot compute inverse.")
+        return Matrix(self.n_rows, self.n_columns, np.linalg.pinv(self.data))
 
     def dimensions(self):
         return self.n_rows, self.n_columns
@@ -61,21 +69,33 @@ class Matrix:
 
 def generate_symmetric_gaussian_matrix(n, variance):
     sigma = np.sqrt(variance)
-    upper_triangular = np.random.normal(0, sigma, size=(n, n))
-    symmetric_matrix = np.triu(upper_triangular) + np.triu(upper_triangular, 1).T
-    return Matrix(n, n, symmetric_matrix)
+    random_matrix = []
+    for i in range(n):
+        random_matrix.append([])
+        for j in range(n):
+            random_matrix[i].append(np.float64(np.random.normal(0, sigma)))
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            random_matrix[j][i] = random_matrix[i][j]
+    return Matrix(n, n, random_matrix)
 
 
 def generate_gaussian_matrix(n_rows, n_columns, variance):
     if n_rows == n_columns:
         return generate_symmetric_gaussian_matrix(n_rows, variance)
     sigma = np.sqrt(variance)
-    gaussian_matrix = np.random.normal(0, sigma, size=(n_rows, n_columns))
-    return Matrix(n_rows, n_columns, gaussian_matrix)
+    random_matrix = []
+    for i in range(n_rows):
+        random_matrix.append([])
+        for j in range(n_columns):
+            random_matrix[i].append(np.float64(np.random.normal(0, sigma)))
+
+    return Matrix(n_rows, n_columns, random_matrix)
 
 
 def identity(size):
-    return Matrix(size, size, np.identity(size))
+    return Matrix(size, size, np.eye(size, dtype=np.float64))
 
 
 def zero_matrix(n_rows, n_columns):
@@ -84,6 +104,7 @@ def zero_matrix(n_rows, n_columns):
 
 def symmetric_matrix_from_array(array):
     n = len(array)
+
     for i in range(n):
         for j in range(i + 1, n):
             array[j][i] = array[i][j]
@@ -99,3 +120,12 @@ def symmetric_matrix_to_array(matrix):
         for j in range(i + 1, n):
             array[j][i] = array[i][j]
     return array
+
+
+def solve_regression(X, y):
+    X_array = np.asarray(X.data, dtype=np.float64)
+    y_array = np.asarray(y.data, dtype=np.float64).reshape(-1)
+
+    theta, residuals, rank, s = np.linalg.lstsq(X_array, y_array, rcond=None)
+
+    return Matrix(X.n_columns, y.n_columns, theta.reshape(-1, 1))
