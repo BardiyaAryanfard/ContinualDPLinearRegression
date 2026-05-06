@@ -26,5 +26,6 @@ class PQFTL:
         self.t += 1
         self.xtx.update(x.transpose().multiply(x))
         self.xty.update(x.transpose().multiply(y))
-        return (self.xtx.get().add(identity(self.d).multiply_by_num(self.t * self.alpha))).inverse().multiply(
-            self.xty.get())
+        theta = solve_regression(self.xtx.get().add(identity(self.d).multiply_by_num(self.t * self.alpha)),
+                                 self.xty.get())
+        return theta
