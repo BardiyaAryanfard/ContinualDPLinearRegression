@@ -1,26 +1,25 @@
 import math
+from os import read
 
-from src.judge.Judge import evaluate
-from src.test.gen_synthetic_datasets import *
-from src.test.reader import read_data_file
-
-# d = 15
-# T = 200000
-# raw_X, raw_y = generate_dp_hard_instance(T, d)
-# eps = 1
-
-# delta = 1.0 / T
-#
-# judge = Judge()
-# judge.evaluate(raw_X, raw_y, T, d, eps, delta)
+from src.judge.Judge import *
+from src.test.reader import StreamingDataset
 
 
-# T, d, raw_X, raw_y = read_data_file("files/data/Twitter.data", y_column=-1)
-T = 100000
-d = 15
-# raw_X, raw_y = generator_2(T, d)
-raw_X, raw_y = generate_dp_hard_instance(T, d)
-eps = 20.0
-delta = 1.0 / 100.0
-evaluate(raw_X, raw_y, T, d, eps, delta, "Twitter_eps_20_delta_0.01", snapshot_interval=min(1000, math.floor(T/100.0)))
+dataset_name = input()
+print("dataset_name:", dataset_name)
+dir = input()
+print("dir:", dir)
+input_file = input()
+print("input_file:", input_file)
+run_id = input()
+print("run_id:", run_id)
+eps = float(input())
+print("eps:", eps)
+snapshot_interval = int(input())
 
+experiment_name = f"{dataset_name}_eps{eps}_run{run_id}"
+
+reader = StreamingDataset(f"{dir}/{input_file}")
+
+delta = 1.0 / reader.n
+evaluate_continual(eps, delta, experiment_name, reader, snapshot_interval=snapshot_interval, output_path=f"{dir}/logs/")
