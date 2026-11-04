@@ -12,14 +12,11 @@ class SVT:
         self.c = c
         self.beta = 0.1
         self.sigma = math.sqrt(32.0 * c * math.log(1.0 / delta)) * sensitivity / epsilon
-        print("sigma: ", self.sigma)
         self.rho = np.float64(np.random.laplace(0.0, self.sigma))
         self.count = 0
 
     def update(self, query_value, threshold):
         if self.count >= self.c:
-            if self.count == self.c:
-                print("SVT: Exceeded maximum number of positive responses T")
             self.count += 1
             return False
 
