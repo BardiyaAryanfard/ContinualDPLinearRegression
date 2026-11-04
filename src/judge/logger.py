@@ -8,10 +8,22 @@ class OutputLogger:
         self.points = []
         self.curve_names = curve_names
         self.exp_name = exp_name
+        self.running_times = []
+        self.preprocessing_times = []
+        self.number_of_time_steps = []
 
     def add_point(self, t, point):
         self.times.append(t)
         self.points.append(point)
+
+    def set_running_times(self, running_times):
+        self.running_times = running_times
+
+    def set_preprocessing_times(self, preprocessing_times):
+        self.preprocessing_times = preprocessing_times
+
+    def set_number_of_time_steps(self, number_of_time_steps):
+        self.number_of_time_steps = number_of_time_steps
 
     def prepare(self):
         plt.clf()
@@ -47,6 +59,12 @@ class OutputLogger:
                 line = str(t) + "," + ",".join(map(str, point)) + "\n"
                 f.write(line)
 
+            for i, curve_name in enumerate(self.curve_names):
+                f.write(f"Preprocessing time for {curve_name}: {self.preprocessing_times[i]}\n")
+                f.write(f"Total running time for {curve_name}: {self.running_times[i]+self.preprocessing_times[i]}\n")
+                f.write(f"Per time step running time for {curve_name}: {self.running_times[i]/self.number_of_time_steps[i]}\n")
+                f.write(f"Number of time steps for {curve_name}: {self.number_of_time_steps[i]}\n")
+
     def read_from_file(self, exp_name, path="files/logs/", selected_curves=None):
         self.times = []
         self.points = []
@@ -71,6 +89,8 @@ class OutputLogger:
             lines = lines[1:]
 
             for line in lines:
+                if not line.strip() or line.startswith("Preprocessing time") or line.startswith("Total running time") or line.startswith("Per time step running time") or line.startswith("Number of time steps"):
+                    continue
                 parts = line.strip().split(",")
                 t = int(parts[0])
 
@@ -96,11 +116,11 @@ class AggregatedLogger:
         tail_start = int((1.0 - tail_fraction) * n_steps)
 
         tail_per_run = np.mean(self.all_points[:, tail_start:, :], axis=1)
-
         medians = np.median(tail_per_run, axis=0)
         stds = np.std(tail_per_run, axis=0)
 
         cells = [dataset_label, str(eps)]
+        # print(self.curve_names)
         for i, name in enumerate(self.curve_names):
             val = f"{medians[i]:.2g} ({stds[i]:.2g})"
             cells.append(val)

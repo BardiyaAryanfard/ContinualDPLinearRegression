@@ -54,7 +54,7 @@ class Matrix:
     def min_eigenvalue(self):
         if self.n_rows != self.n_columns:
             raise ValueError("Matrix must be square to calculate eigenvalues.")
-        eigenvalues = np.linalg.eigvals(self.data)
+        eigenvalues = np.linalg.eigvalsh(self.data)
         return np.min(eigenvalues)
 
     def spectral_norm(self):
