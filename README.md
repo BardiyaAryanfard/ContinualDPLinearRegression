@@ -38,7 +38,7 @@ files/data/year
 year.txt
 1
 1.0
-<S>
+1000
 ```
 and run:
 ```
